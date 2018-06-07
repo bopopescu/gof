@@ -22,15 +22,15 @@
  * created at 2018-06-04 17:59:04
  ******************************************************************************/
 
-package gof_middleware
+package gofmiddleware
 
 import (
 	"net/http"
 	"strconv"
 	"strings"
 
+	"gitee.com/goframe/gof/gof-errors"
 	"github.com/gin-gonic/gin"
-	"github.com/heqiawen/gof/gof-errors"
 	"github.com/labstack/echo"
 	"github.com/spf13/viper"
 )
@@ -78,14 +78,14 @@ func (p *CORSConfig) ReadIn() error {
 		return viper.UnmarshalKey(key, p)
 	}
 	viper.Set(key, DefaultCORSConfig)
-	return gof_errors.ErrInitConfig
+	return goferrors.ErrInitConfig
 }
 
 var (
 	// DefaultCORSConfig is the default CORS middleware config.
 	DefaultCORSConfig = CORSConfig{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.HeaderAuthorization},
 		AllowHeaders:     []string{},
 		AllowCredentials: true,
 		MaxAge:           172800,

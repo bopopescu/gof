@@ -19,67 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-04 17:59:04
+ * created at 2018-06-05 13:12:50
  ******************************************************************************/
 
-package gof
+package gof_utils
 
 import (
-	"errors"
-	"os"
-	"os/exec"
-	"path/filepath"
+	"net/url"
 	"strings"
 )
 
-type File struct {
-	f *os.File
+// JsQueryEscape escapes the string in javascript standard so it can be safely placed
+// inside a URL query.
+func JsQueryEscape(s string) string {
+	return strings.Replace(url.QueryEscape(s), "+", "%20", -1)
 }
 
-func (fl *File) fileExist(fName string) bool {
-	if _, err := os.Stat(fName); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-//初始化一个文件,如果文件存在则返回,不存在则创建
-func (fl *File) innerFile(fName string) error {
-	if fl.fileExist(fName) {
-		return nil
-	}
-	os.MkdirAll(filepath.Dir(fName), 0755)
-	file, err := os.OpenFile(fName, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	fl.f = file
-	return nil
-}
-
-//GetCurrentPath ... 获取程序运行时目录
-func GetCurrentPath() (string, error) {
-	file, err := exec.LookPath(os.Args[0])
-	if err != nil {
-		return "", err
-	}
-	path, err := filepath.Abs(file)
-	if err != nil {
-		return "", err
-	}
-	i := strings.LastIndex(path, "/")
-	if i < 0 {
-		i = strings.LastIndex(path, "\\")
-	}
-	if i < 0 {
-		return "", errors.New(`error: Can't find "/" or "\"\n`)
-	}
-	return string(path[0 : i+1]), nil
-}
-
-//MustGetCurrentPath ... 获取程序运行时目录
-func MustGetCurrentPath() string {
-	s, _ := GetCurrentPath()
-	return s
+// JsQueryUnescape does the inverse transformation of JsQueryEscape, converting
+// %AB into the byte 0xAB and '+' into ' ' (space). It returns an error if
+// any % is not followed by two hexadecimal digits.
+func JsQueryUnescape(s string) (string, error) {
+	return url.QueryUnescape(strings.Replace(s, "%20", "+", -1))
 }
