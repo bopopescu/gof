@@ -19,20 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-04 17:59:04
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
-package gofmiddleware
+package gofconfmiddleware
 
 import (
 	"net/http"
 	"strconv"
 	"strings"
 
-	"gitee.com/goframe/gof/gof-errors"
+	"gitee.com/goframe/gof/gofconf"
 	"github.com/gin-gonic/gin"
-	"github.com/labstack/echo"
-	"github.com/spf13/viper"
 )
 
 type (
@@ -71,27 +69,27 @@ type (
 	}
 )
 
-//ReadIn ...
-func (p *CORSConfig) ReadIn() error {
-	key := "cors"
-	if viper.IsSet(key) {
-		return viper.UnmarshalKey(key, p)
-	}
-	viper.Set(key, DefaultCORSConfig)
-	return goferrors.ErrInitConfig
+//InitFunc ReadIn ...
+func (p *CORSConfig) InitFunc() error {
+	return gofconf.ReadObjInformation(&DefaultCORSConfig)
 }
 
 var (
 	// DefaultCORSConfig is the default CORS middleware config.
 	DefaultCORSConfig = CORSConfig{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.HeaderAuthorization},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "HEAD", "DELETE"},
 		AllowHeaders:     []string{},
 		AllowCredentials: true,
 		MaxAge:           172800,
 	}
 )
 
+func init() {
+	gofconf.AddDefaultInformation(&DefaultCORSConfig)
+}
+
+// CORS ...
 func CORS(configs ...CORSConfig) gin.HandlerFunc {
 	var config CORSConfig
 	if len(configs) == 0 {
@@ -112,47 +110,47 @@ func CORS(configs ...CORSConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := c.Request
 		res := c.Writer
-		origin := req.Header.Get(echo.HeaderOrigin)
+		origin := req.Header.Get(gofconf.HeaderOrigin)
 		allowOrigin := ""
 		// Check allowed origins
 		for _, o := range config.AllowOrigins {
 			if o == "*" || o == origin {
-				allowOrigin = origin
+				allowOrigin = o
 				break
 			}
 		}
 		// Simple request
-		if req.Method != echo.OPTIONS {
-			res.Header().Add(echo.HeaderVary, echo.HeaderOrigin)
-			res.Header().Set(echo.HeaderAccessControlAllowOrigin, allowOrigin)
+		if req.Method != gofconf.OPTIONS {
+			res.Header().Add(gofconf.HeaderVary, gofconf.HeaderOrigin)
+			res.Header().Set(gofconf.HeaderAccessControlAllowOrigin, allowOrigin)
 			if config.AllowCredentials {
-				res.Header().Set(echo.HeaderAccessControlAllowCredentials, "true")
+				res.Header().Set(gofconf.HeaderAccessControlAllowCredentials, "true")
 			}
 			if exposeHeaders != "" {
-				res.Header().Set(echo.HeaderAccessControlExposeHeaders, exposeHeaders)
+				res.Header().Set(gofconf.HeaderAccessControlExposeHeaders, exposeHeaders)
 			}
 			c.Next()
 			return
 		}
 		// Preflight request
-		res.Header().Add(echo.HeaderVary, echo.HeaderOrigin)
-		res.Header().Add(echo.HeaderVary, echo.HeaderAccessControlRequestMethod)
-		res.Header().Add(echo.HeaderVary, echo.HeaderAccessControlRequestHeaders)
-		res.Header().Set(echo.HeaderAccessControlAllowOrigin, allowOrigin)
-		res.Header().Set(echo.HeaderAccessControlAllowMethods, allowMethods)
+		res.Header().Add(gofconf.HeaderVary, gofconf.HeaderOrigin)
+		res.Header().Add(gofconf.HeaderVary, gofconf.HeaderAccessControlRequestMethod)
+		res.Header().Add(gofconf.HeaderVary, gofconf.HeaderAccessControlRequestHeaders)
+		res.Header().Set(gofconf.HeaderAccessControlAllowOrigin, allowOrigin)
+		res.Header().Set(gofconf.HeaderAccessControlAllowMethods, allowMethods)
 		if config.AllowCredentials {
-			res.Header().Set(echo.HeaderAccessControlAllowCredentials, "true")
+			res.Header().Set(gofconf.HeaderAccessControlAllowCredentials, "true")
 		}
 		if allowHeaders != "" {
-			res.Header().Set(echo.HeaderAccessControlAllowHeaders, allowHeaders)
+			res.Header().Set(gofconf.HeaderAccessControlAllowHeaders, allowHeaders)
 		} else {
-			h := req.Header.Get(echo.HeaderAccessControlRequestHeaders)
+			h := req.Header.Get(gofconf.HeaderAccessControlRequestHeaders)
 			if h != "" {
-				res.Header().Set(echo.HeaderAccessControlAllowHeaders, h)
+				res.Header().Set(gofconf.HeaderAccessControlAllowHeaders, h)
 			}
 		}
 		if config.MaxAge > 0 {
-			res.Header().Set(echo.HeaderAccessControlMaxAge, maxAge)
+			res.Header().Set(gofconf.HeaderAccessControlMaxAge, maxAge)
 		}
 		c.Writer.WriteHeader(http.StatusNoContent)
 	}

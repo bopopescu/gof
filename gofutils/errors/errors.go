@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:21:02
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
 // errors is improved errors package.
@@ -29,6 +29,8 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+
+	"gitee.com/goframe/gof/gofutils"
 )
 
 // New returns an error that formats as the given text.
@@ -110,9 +112,9 @@ func (m *multiError) Error() string {
 	for i, err := range m.errs {
 		bText = append(bText, strconv.Itoa(i+1)...)
 		bText = append(bText, ". "...)
-		bText = append(bText, bytes.Trim(goutil.StringToBytes(err.Error()), "\n")...)
+		bText = append(bText, bytes.Trim(gofutils.StringToBytes(err.Error()), "\n")...)
 		bText = append(bText, '\n')
 	}
-	m.text = goutil.BytesToString(bText)
+	m.text = gofutils.BytesToString(bText)
 	return m.text
 }

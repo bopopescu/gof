@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-06 08:19:05
+ * created at 2018-06-06 15:15:07
  ******************************************************************************/
 
-package gof
+package goflogger
 
 import (
 	"fmt"

@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-06 08:18:29
+ * created at 2018-06-06 17:20:43
  ******************************************************************************/
 
-package gof
+package gofconf
 
 import (
 	"errors"

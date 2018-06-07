@@ -19,21 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:12:50
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
-package gof_utils
+package gofutils
 
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
+	"time"
 )
+
+//Delimiter ...  文件夹目录分隔符
+var Delimiter = func() string {
+	if runtime.GOOS == "windows" {
+		return "\\"
+	}
+	return "/"
+}()
+
+//SelfName ...
+func SelfName() string {
+	return filepath.Base(SelfPath())
+}
 
 // SelfPath gets compiled executable file absolute path.
 func SelfPath() string {
@@ -43,7 +60,16 @@ func SelfPath() string {
 
 // SelfDir gets compiled executable file directory.
 func SelfDir() string {
-	return filepath.Dir(SelfPath())
+	file, _ := exec.LookPath(os.Args[0])
+	path, _ := filepath.Abs(file)
+	i := strings.LastIndex(path, "/")
+	if i < 0 {
+		i = strings.LastIndex(path, "\\")
+	}
+	if i < 0 {
+		return ""
+	}
+	return string(path[0 : i+1])
 }
 
 // RelPath gets relative path.
@@ -143,10 +169,10 @@ func WalkDirs(targpath string, suffixes ...string) (dirlist []string) {
 			dirlist = append(dirlist, RelPath(retpath))
 			return nil
 		}
-		_retpath := RelPath(retpath)
+		rp1 := RelPath(retpath)
 		for _, suffix := range suffixes {
-			if strings.HasSuffix(_retpath, suffix) {
-				dirlist = append(dirlist, _retpath)
+			if strings.HasSuffix(rp1, suffix) {
+				dirlist = append(dirlist, rp1)
 			}
 		}
 		return nil
@@ -158,4 +184,58 @@ func WalkDirs(targpath string, suffixes ...string) (dirlist []string) {
 	}
 
 	return
+}
+
+//TouchFile If the file does not exist, it is created automatically.
+//Do not do anything if the file already exists.
+func TouchFile(fileName string) error {
+	if FileExists(fileName) {
+		return nil
+	}
+	dir := filepath.Dir(fileName)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	f.Close()
+	return nil
+}
+
+//GetFileSize 获取当前文件大小
+//kb >>10 , mb >>1e2
+func GetFileSize(file *os.File) (int64, error) {
+	//更新文件内存副本
+	if err := file.Sync(); err != nil {
+		return 0, err
+	}
+	stat, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
+	return stat.Size(), err
+}
+
+//CopyFile ...
+func CopyFile(dstName, srcName string) (written int64, err error) {
+	src, err := os.Open(srcName)
+	if err != nil {
+		return
+	}
+	defer src.Close()
+	dst, err := os.OpenFile(dstName, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return
+	}
+	defer dst.Close()
+	return io.Copy(dst, src)
+}
+
+//TodayDir 获取当前日期目录
+func TodayDir(file *os.File) string {
+	dir := filepath.Dir(file.Name())
+	dir = fmt.Sprintf("%s%s%s", dir, Delimiter, time.Now().Local().Format("20060102"))
+	return dir
 }

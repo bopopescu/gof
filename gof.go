@@ -19,89 +19,108 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-04 17:59:04
+ * created at 2018-06-06 08:18:28
  ******************************************************************************/
 
 package gof
 
 import (
 	"fmt"
-	"log"
+	"io"
+	"net/http"
 	"os"
+	"runtime"
+	"time"
 
+	"gitee.com/goframe/gof/gofcache"
+	"gitee.com/goframe/gof/gofconf"
+	"gitee.com/goframe/gof/goflogger"
+	"gitee.com/goframe/gof/goform"
+	"gitee.com/goframe/gof/gofutils"
+	"github.com/aviddiviner/gin-limit"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/heqiawen/gof/gof-middleware"
-	"github.com/labstack/echo"
-	"github.com/robfig/cron"
-)
-
-//kb,mb,gb
-const (
-	_         = iota             // ignore first value by assigning to blank identifier
-	KB uint64 = 1 << (10 * iota) // 1 << (10*1)
-	MB                           // 1 << (10*2)
-	GB                           // 1 << (10*3)
-	TB                           // 1 << (10*4)
-	// PB                             // 1 << (10*5)
-	// EB                             // 1 << (10*6)
-	// ZB                             // 1 << (10*7)
-	// YB                             // 1 << (10*8)
 )
 
 var (
-	global *Frame
-
-	//Cron ... 默认初始化一个 cron, 后台运行定时器任务
-	//如果需要定时任务,直接添加进来即可
-	//example:	...
-	//每日凌晨1点执行
-	//0 0 1 * * *
-	/*
-		Cron.AddFunc("0 0 1 * * *", func() {
-			//do something
-		})
-	*/
-	Cron *cron.Cron
+	DEFCorsConfig = CorsConfig{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{gofconf.GET, gofconf.POST, gofconf.PUT, gofconf.PATCH, gofconf.HEAD, gofconf.DELETE},
+		AllowHeaders:     []string{},
+		ExposeHeaders:    []string{"Content-Length", "Set-Cap-Key"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}
 )
 
-//Frame implement gin IRouter interface,extends gin engine
-type Frame struct {
-	*gin.Engine
-	logger  log.Logger
-	Routers *gin.RouterGroup
+type CorsConfig struct {
+	AllowAllOrigins  bool
+	AllowOrigins     []string `yaml:",flow"`
+	AllowMethods     []string `yaml:",flow"`
+	AllowHeaders     []string `yaml:",flow"`
+	ExposeHeaders    []string `yaml:",flow"`
+	AllowCredentials bool
+	MaxAge           time.Duration
 }
 
-//Run ...
-func Run(addr ...string) {
+func (p *CorsConfig) InitFunc() error {
+	return gofconf.ReadObjInformation(p)
+}
+
+func New() *gin.Engine {
+	gin.SetMode(gofconf.DefaultProcess.Mode)
+	multi := make([]io.Writer, 0)
+	if gofconf.DefaultLog.FileEnable {
+		fl := goflogger.GetFile(gofutils.SelfDir() + gofconf.DefaultLog.FilePath + "info.log")
+		multi = append(multi, fl.GetFile())
+	}
+	if gofconf.DefaultLog.ConsoleEnable {
+		multi = append(multi, os.Stdout)
+	}
+	gin.DefaultWriter = io.MultiWriter(multi...)
+	fl2 := goflogger.GetFile(gofutils.SelfDir() + gofconf.DefaultLog.FilePath + "error.log")
+	gin.DefaultErrorWriter = io.MultiWriter(fl2.GetFile())
+	corsConfig := cors.Config{
+		AllowAllOrigins:  DEFCorsConfig.AllowAllOrigins,
+		AllowOrigins:     DEFCorsConfig.AllowOrigins,
+		AllowMethods:     DEFCorsConfig.AllowMethods,
+		AllowHeaders:     DEFCorsConfig.AllowHeaders,
+		ExposeHeaders:    DEFCorsConfig.ExposeHeaders,
+		AllowCredentials: DEFCorsConfig.AllowCredentials,
+		MaxAge:           DEFCorsConfig.MaxAge,
+	}
+	router := gin.New()
+	router.Use(
+		gin.Logger(),
+		gin.Recovery(),
+		limit.MaxAllowed(runtime.NumCPU()),
+		cors.New(corsConfig),
+		gzip.Gzip(9),
+	)
+	return router
+}
+
+func Run(router *gin.Engine, addr ...string) error {
+	var thisAddr string
 	if len(addr) == 0 {
-		addr = append(addr, fmt.Sprintf(":%d", process.Port))
+		thisAddr = fmt.Sprintf(":%d", gofconf.DefaultProcess.ListenPort)
+	} else {
+		thisAddr = addr[0]
 	}
-	log.Printf("The PID of the current process is: %d \n", os.Getpid())
-	if err := global.Run(addr...); err != nil {
-		log.Fatalln(err.Error())
+	srv := http.Server{
+		Addr:         thisAddr,
+		ReadTimeout:  gofconf.DefaultProcess.ReadTimeOut,
+		WriteTimeout: gofconf.DefaultProcess.WriteTimeOut,
+		Handler:      router,
 	}
+	return srv.ListenAndServe()
 }
 
-func initialization() {
-	//初始化配置项内容
-	initConfig()
-	//gin run mode
-	gin.SetMode(process.GinMode)
-	global = new(Frame)
-	global.Engine = gin.New()
-	global.Routers = global.Engine.Group("/", func(c *gin.Context) {
-		server := fmt.Sprintf("GOF/%s:/%s", echo.Version, gin.Version)
-		c.Writer.Header().Set(echo.HeaderServer, server)
-		fmt.Println(server)
-		c.Next()
-	}, gin.Logger(), gin.Recovery(), gof_middleware.CORS())
-	//初始化定时器
-	Cron = cron.New()
-	Cron.Start()
-}
+func init() {
+	gofconf.AddDefaultInformation(&DEFCorsConfig)
 
-//New ...
-func New() *Frame {
-	initialization()
-	return global
+	gofconf.Initialize()
+	gofcache.InitCache()
+	goform.Initialize()
 }

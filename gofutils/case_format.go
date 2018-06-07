@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:12:50
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
-package gof_utils
+package gofutils
 
 import (
 	"reflect"
@@ -77,7 +77,12 @@ func CamelString(s string) string {
 func ObjectName(obj interface{}) string {
 	v := reflect.ValueOf(obj)
 	t := v.Type()
-	if t.Kind() == reflect.Func {
+	switch t.Kind() {
+	case reflect.Ptr:
+		return v.Elem().Type().Name()
+	case reflect.Struct:
+		return t.Name()
+	case reflect.Func:
 		return runtime.FuncForPC(v.Pointer()).Name()
 	}
 	return t.String()

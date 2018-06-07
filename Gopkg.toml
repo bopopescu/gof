@@ -26,6 +26,11 @@
 
 required=[
     "github.com/gin-gonic/gin",
+    "github.com/gin-contrib/cors",
+    "github.com/heqiawen/gin-jwt",
+    "github.com/gin-gonic/autotls",
+    "github.com/aviddiviner/gin-limit",
+    "github.com/gin-contrib/gzip",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
     "github.com/spf13/cobra",
@@ -46,3 +51,11 @@ required=[
 [prune]
   go-tests = true
   unused-packages = true
+
+[[override]]
+  name = "github.com/heqiawen/gin-jwt"
+  branch = "master"
+
+[[override]]
+  name = "github.com/gin-gonic/gin"
+  branch = "master"

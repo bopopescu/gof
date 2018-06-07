@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:12:50
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
-package gof_utils
+package gofutils
 
 import (
 	"crypto/aes"

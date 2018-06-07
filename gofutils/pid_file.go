@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:12:50
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
-package gof_utils
+package gofutils
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ import (
 )
 
 // DEFAULT_PID_FILE the default PID file name
-var DefaultPidFile = "log/PID"
+var DefaultPidFile = "logs/PID"
 
 // WritePidFile writes the current PID to the specified file.
 func WritePidFile(pidFile ...string) {

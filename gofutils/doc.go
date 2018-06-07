@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * -------------------------------------------------------------------------
- * created at 2018-06-05 13:12:50
+ * created at 2018-06-06 08:18:29
  ******************************************************************************/
 
 // Common and useful utils for the Go project development.
@@ -28,4 +28,4 @@
 //  - Only rely on the Go standard package
 //  - Functions or lightweight packages
 //  - Non-business related general tools
-package gof_utils
+package gofutils
