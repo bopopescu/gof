@@ -34,8 +34,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	xormcore "github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
-	//_ "github.com/jinzhu/gorm/dialects/mysql"
-	//_ "github.com/jinzhu/gorm/dialects/postgres"
+
+	"log"
+
 	"github.com/spf13/viper"
 )
 
@@ -49,7 +50,7 @@ var (
 		Master: Database{
 			Type:     "mysql",
 			User:     "root",
-			Password: "",
+			Password: "111",
 			DB:       "db_demo",
 			Address:  "127.0.0.1",
 			Port:     3306,
@@ -79,7 +80,7 @@ type (
 
 func Initialize() {
 	if err := settingDatabase(); err != nil {
-		panic(err.Error())
+		log.Fatalln(err.Error())
 	}
 }
 
@@ -120,7 +121,15 @@ func createDatabaseEngine() error {
 			defaultConf.Master.Port,
 			defaultConf.Master.DB,
 		)
-		db, err := xorm.NewEngineGroup(dbType, sdn)
+		sdn2 := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?timeout=30s&charset=utf8&parseTime=true",
+			defaultConf.Master.User,
+			defaultConf.Master.Password,
+			defaultConf.Slave.Address,
+			defaultConf.Slave.Port,
+			defaultConf.Master.DB,
+		)
+		cons := []string{sdn, sdn2}
+		db, err := xorm.NewEngineGroup(dbType, cons)
 		if err != nil {
 			return err
 		}
