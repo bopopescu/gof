@@ -28,6 +28,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"time"
 
 	"gitee.com/goframe/gof/gofutils"
 	"github.com/fsnotify/fsnotify"
@@ -118,14 +119,43 @@ func Initialize() {
 				log.Println(string(gofutils.PanicTrace(4)))
 			}
 		}()
+		//Add timeout validation and exit the current goroutine automatically after more than 10 seconds.
+		to := time.NewTimer(10 * time.Second)
 		for {
+			to.Reset(10 * time.Second)
 			select {
 			case obFunc := <-Queue:
 				obFunc()
+			case <-to.C:
+				return
 			}
 		}
 	}
 
 	log.SetFlags(log.LstdFlags)
 	log.Printf("The PID of the current process is: %d \n", os.Getpid())
+}
+
+//AddJobWithTimeout Add a co-procedure with a timeout constraint
+//Add timeout validation and exit the current goroutine automatically after more than 10 seconds.
+func AddJobWithTimeout(out time.Duration, fn func()) {
+	Job.JobQueue <- func() {
+		defer func() {
+			if p := recover(); p != nil {
+				log.SetFlags(log.LstdFlags)
+				log.Println(string(gofutils.PanicTrace(4)))
+			}
+		}()
+		//Add timeout validation and exit the current goroutine automatically after more than 10 seconds.
+		to := time.NewTimer(out)
+		for {
+			to.Reset(out)
+			select {
+			case <-to.C:
+				return
+			default:
+				fn()
+			}
+		}
+	}
 }

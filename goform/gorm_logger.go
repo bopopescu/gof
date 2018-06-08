@@ -47,7 +47,6 @@ var (
 		}
 		return file
 	}
-	defLogger                = f().GetLogger()
 	defLogFile               = f().GetFile()
 	defaultLogger            = Logger{log.New(defLogFile, "\r\n", 0)}
 	sqlRegexp                = regexp.MustCompile(`\?`)
