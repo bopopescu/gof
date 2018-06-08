@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitee.com/goframe/gof/gofconf"
+	"github.com/atcharles/gof/gofconf"
 	"github.com/gin-gonic/gin"
 )
 

@@ -32,7 +32,7 @@ import (
 	"sync"
 	"time"
 
-	"gitee.com/goframe/gof/gofutils"
+	"github.com/atcharles/gof/gofutils"
 	"github.com/robfig/cron"
 	"github.com/sirupsen/logrus"
 )

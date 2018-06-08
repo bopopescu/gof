@@ -30,7 +30,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"gitee.com/goframe/gof/gofutils"
+	"github.com/atcharles/gof/gofutils"
 )
 
 // New returns an error that formats as the given text.

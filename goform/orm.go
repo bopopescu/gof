@@ -28,9 +28,9 @@ import (
 	"fmt"
 	"time"
 
-	"gitee.com/goframe/gof/gofconf"
-	"gitee.com/goframe/gof/gofutils"
-	"gitee.com/goframe/gof/gofutils/errors"
+	"github.com/atcharles/gof/gofconf"
+	"github.com/atcharles/gof/gofutils"
+	"github.com/atcharles/gof/gofutils/errors"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"

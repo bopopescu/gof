@@ -27,7 +27,7 @@ package gofconf
 import (
 	"time"
 
-	"gitee.com/goframe/gof/gofutils"
+	"github.com/atcharles/gof/gofutils"
 )
 
 // The configuration program uses viper;see: github.com/spf13/viper

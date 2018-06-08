@@ -34,8 +34,8 @@ import (
 	"time"
 	"unicode"
 
-	"gitee.com/goframe/gof/goflogger"
-	"gitee.com/goframe/gof/gofutils"
+	"github.com/atcharles/gof/goflogger"
+	"github.com/atcharles/gof/gofutils"
 	"github.com/sirupsen/logrus"
 )
 

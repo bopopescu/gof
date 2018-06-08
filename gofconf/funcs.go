@@ -30,7 +30,7 @@ import (
 	"runtime"
 	"time"
 
-	"gitee.com/goframe/gof/gofutils"
+	"github.com/atcharles/gof/gofutils"
 	"github.com/fsnotify/fsnotify"
 	"github.com/ivpusic/grpool"
 	"github.com/spf13/viper"

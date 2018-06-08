@@ -28,9 +28,9 @@ import (
 	"fmt"
 	"time"
 
-	"gitee.com/goframe/gof/goflogger"
-	"gitee.com/goframe/gof/gofutils"
-	"gitee.com/goframe/gof/gofutils/errors"
+	"github.com/atcharles/gof/goflogger"
+	"github.com/atcharles/gof/gofutils"
+	"github.com/atcharles/gof/gofutils/errors"
 	_ "github.com/go-sql-driver/mysql"
 	xormcore "github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"

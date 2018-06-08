@@ -33,7 +33,7 @@ import (
 	"sync"
 	"time"
 
-	"gitee.com/goframe/gof/gofconf"
+	"github.com/atcharles/gof/gofconf"
 	"github.com/go-redis/redis"
 	"github.com/spf13/viper"
 	"github.com/tidwall/buntdb"
