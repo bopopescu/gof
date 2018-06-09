@@ -57,9 +57,15 @@ type CacheInterface interface {
 	Bind(key string, bean interface{}) error
 	Set(key string, value interface{}, exp time.Duration) error
 	Remember(key string, set func() error) ([]byte, error)
+	RememberBind(key string, bean interface{}, set func() error) error
 	Exists(key string) bool
 	Del(key string) error
 	DelAll() error
+}
+
+func init() {
+	DefCache = NewMemoryCache()
+	MeCache = NewMemoryCache()
 }
 
 func InitCache() {
@@ -155,6 +161,17 @@ func (r *RedisCache) Remember(key string, set func() error) (b []byte, err error
 		}
 	}
 	return r.Client.Get(key).Bytes()
+}
+
+//RememberBind ...
+func (r *RedisCache) RememberBind(key string, bean interface{}, set func() error) error {
+	if !r.Exists(key) {
+		err := set()
+		if err != nil {
+			return err
+		}
+	}
+	return r.Bind(key, bean)
 }
 
 //Exists ...
@@ -279,6 +296,17 @@ func (m *MemoryCache) Remember(key string, set func() error) (b []byte, err erro
 		}
 	}
 	return m.Get(key)
+}
+
+//RememberBind ...
+func (m *MemoryCache) RememberBind(key string, bean interface{}, set func() error) error {
+	if !m.Exists(key) {
+		err := set()
+		if err != nil {
+			return err
+		}
+	}
+	return m.Bind(key, bean)
 }
 
 //Exists ...
