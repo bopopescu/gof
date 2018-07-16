@@ -40,6 +40,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/aviddiviner/gin-limit"
 )
 
 var (
