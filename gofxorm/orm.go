@@ -133,7 +133,6 @@ func createDatabaseEngine() error {
 		if err != nil {
 			return err
 		}
-		db.Ping()
 		Engine = db
 	default:
 		return errors.Errorf("Unsupported database type:%s!", dbType)
@@ -158,6 +157,7 @@ func settingDatabase() error {
 		Engine.SetLogger(xorm.NewSimpleLogger(goflogger.GetFile(fName).GetFile()))
 		Engine.SetLogLevel(xormcore.LOG_INFO)
 	}else{
+		Engine.SetLogger(xorm.NewSimpleLogger(nil))
 		Engine.SetLogLevel(xormcore.LOG_OFF)
 	}
 
