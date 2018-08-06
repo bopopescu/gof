@@ -157,6 +157,8 @@ func settingDatabase() error {
 	if defaultConf.ShowSQL {
 		Engine.SetLogger(xorm.NewSimpleLogger(goflogger.GetFile(fName).GetFile()))
 		Engine.SetLogLevel(xormcore.LOG_INFO)
+	}else{
+		Engine.SetLogLevel(xormcore.LOG_OFF)
 	}
 
 	Engine.SetDisableGlobalCache(!defaultConf.UserCache)
