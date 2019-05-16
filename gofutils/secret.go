@@ -28,7 +28,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 
-	"github.com/Luzifer/go-openssl"
+	"github.com/atcharles/gof/openssl"
 )
 
 //DefSecretString ...
